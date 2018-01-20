@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>导入用户信息Excel</title>
+	<style type="text/css">
+		button{
+			padding:3px 5px;
+			font-size:16px;
+		}
+		.a-upload {
+		    padding: 0px 10px;
+		    height: 34px;
+		    line-height: 34px;
+		    position: relative;
+		    cursor: pointer;
+		    color: #888;
+		    background: #fafafa;
+		    border: 1px solid #ddd;
+		    border-radius: 4px;
+		    overflow: hidden;
+		    display: inline-block;
+		    *display: inline;
+		    font-size: 14px;
+		    *zoom: 1
+		}
+
+		.a-upload  input {
+		    position: absolute;
+		    font-size: 14px;
+		    right: 0;
+		    top: 0;
+		    opacity: 0;
+		    filter: alpha(opacity=0);
+		    cursor: pointer
+		}
+
+		.a-upload:hover {
+		    color: #444;
+		    background: #eee;
+		    border-color: #ccc;
+		    text-decoration: none
+		}
+
+		.loading_tips{
+			position: fixed;
+			z-index: 100;
+			top: 45%;
+		    left: 45%;
+		    font-size:16px;
+		}		
+		.loading_bg{
+			position: fixed;
+			z-index: 99;
+		    background-color: rgb(0, 0, 0);
+		    opacity: 0.3;
+		    top: 0;
+		    left: 0;
+		    width: 100%;
+		    height: 100%;
+		}
+	</style>
+</head>
+<body>
+	<h1>导入用户信息Excel</h1>
+	<div style="padding-left:20px;">
+	<div class="upload">
+	 <form id="addform" method="post" name="addform">
+		 <a href="javascript:;" class="a-upload" style="max-width:160px;text-align:center;">
+       			<input  type="file" name="file" id="file" id="add_file" />选择上传Excel
+         </a>
+        <br/>
+        <br/>
+		<button type="button" onclick="submitform()">提交</button>
+		<button type="reset" >清除</button>
+	 </form>
+	</div>
+	  <br/>
+        <br/>
+	<div class="result_div">
+		<table>
+			<thead>
+				<tr>
+					<th>#</th>
+					<th style="width:100px;">名称</th>
+					<th style="width:100px;" >数量</th>
+					<th style="min-width:100px;">内容</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<th>1</th>
+					<th>成功</th>
+					<th ><span id="add_suc_num" ></span> </th>
+					<th ><span id="add_suc_info" ></span> </th>
+				</tr>
+				<tr>
+					<th>2</th>
+					<th>失败</th>
+					<th ><span id="add_fail_num" ></span></th>
+					<th ><span id="add_fail_info" ></span></th>
+				</tr>
+				<tr>
+					<th>3</th>
+					<th>重复</th>
+					<th ><span id="add_rep_num" ></span></th>
+					<th  ><span id="add_rep_info" ></span></th>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	</div>
+	<div id="loading_div" style="display:none;">
+		<div class="loading_tips">上传中~~~</div>
+		<div class="loading_bg"></div>
+	</div>
+</body>
+
+<script type="text/javascript">
+function submitform(){
+	//验证是否选择文件
+	var file = document.getElementById("file");
+	if(file.length == 0){
+		alert("请选择上传文件")
+		return false;
+	}
+
+	surePost()
+}
+
+function surePost(){
+    	//获取表单信息
+        var formElement = document.forms.namedItem("addform");;
+        var oData  = new FormData(formElement);
+        var oReq = new XMLHttpRequest();
+        oReq.open("POST", "/controller.php", true);
+        oReq.onload = function(oEvent) {
+           closeLayerLoading();
+           if (oReq.status == 200) {
+               var res = JSON.parse(oReq.responseText);
+               console.log(res)
+               if(res.status == 0){
+	                var list = res.data 
+	                for(var i in list){
+	                	var dom = document.getElementById("add_"+i)
+	                	console.log(dom , list[i])
+	                	if(dom !=null){
+	                		dom.innerText  = list[i];
+	                	}
+	                }
+					//alert("操作成功");
+               }else{
+                 alert(res.message)
+               }
+            } else {
+                 alert("操作失败")
+            }
+        };
+        addLayerLoading();
+        oReq.send(oData);
+    	
+    	
+    }
+function addLayerLoading(){
+	document.getElementById("loading_div").style.display = 'block';
+}
+
+function closeLayerLoading(){
+	document.getElementById("loading_div").style.display = 'none';
+}
+
+</script>
+</html>
